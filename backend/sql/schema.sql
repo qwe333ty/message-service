@@ -1,0 +1,28 @@
+CREATE TABLE authority
+(
+  id   TINYINT AUTO_INCREMENT,
+  role VARCHAR(45),
+
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE user
+(
+  id        INTEGER AUTO_INCREMENT,
+  user_name VARCHAR(40)  NOT NULL,
+  password  VARCHAR(255) NOT NULL,
+
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE user_authority
+(
+  id           INTEGER AUTO_INCREMENT,
+  user_id      INTEGER NOT NULL,
+  authority_id TINYINT NOT NULL,
+
+  PRIMARY KEY (id),
+
+  CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES user (id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT authority_fk FOREIGN KEY (authority_id) REFERENCES authority (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
