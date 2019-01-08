@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface AccountService {
+    Account create(Account account);
+
     Account save(Account account);
 
     Iterable<Account> saveAll(Iterable<Account> accounts);
@@ -16,4 +18,6 @@ public interface AccountService {
     Page<Account> findAll(Pageable pageable);
 
     void delete(Integer id);
+
+    boolean existsById(Integer id);
 }

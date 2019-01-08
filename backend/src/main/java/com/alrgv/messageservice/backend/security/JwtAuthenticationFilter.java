@@ -44,14 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 login = jwtTokenUtil.getUsernameFromToken(authToken);
             }catch (IllegalArgumentException e) {
-                logger.error("an error occured during getting login from token", e);
+                logger.error("An error occured during getting login from token", e);
             }catch (ExpiredJwtException e) {
-                logger.error("the token is expired and not valid anymore", e);
+                logger.error("The token is expired and not valid anymore", e);
             }catch (SignatureException e){
                 logger.error("Authentication Failed. Login or Password not valid");
             }
         }else {
-            logger.warn("couldn't find bearer string, will ignore the header");
+            logger.warn("Couldn't find bearer string, will ignore the header");
         }
         if(login != null && SecurityContextHolder.getContext().getAuthentication()
                 == null) {

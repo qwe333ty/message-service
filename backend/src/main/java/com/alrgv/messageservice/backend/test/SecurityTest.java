@@ -3,8 +3,6 @@ package com.alrgv.messageservice.backend.test;
 import com.alrgv.messageservice.backend.controller.AuthenticationController;
 import com.alrgv.messageservice.backend.entity.Account;
 import com.alrgv.messageservice.backend.entity.RestPageImpl;
-import com.alrgv.messageservice.backend.security.JwtTokenUtil;
-import org.assertj.core.api.Assertions;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,10 +18,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.ArrayList;
 import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

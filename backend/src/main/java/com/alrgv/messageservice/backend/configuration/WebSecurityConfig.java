@@ -1,5 +1,6 @@
 package com.alrgv.messageservice.backend.configuration;
 
+import com.alrgv.messageservice.backend.security.JwtAccessDeniedHandler;
 import com.alrgv.messageservice.backend.security.JwtAuthenticationEntryPoint;
 import com.alrgv.messageservice.backend.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +30,13 @@ import java.util.Collections;
 public class WebSecurityConfig
         extends WebSecurityConfigurerAdapter {
 
-
     private JwtAuthenticationEntryPoint unauthorizedHandler;
+    private JwtAccessDeniedHandler accessDeniedHandler;
 
     @Autowired
-    public WebSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler) {
+    public WebSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler, JwtAccessDeniedHandler accessDeniedHandler) {
         this.unauthorizedHandler = unauthorizedHandler;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Override
@@ -43,16 +45,14 @@ public class WebSecurityConfig
         return super.authenticationManagerBean();
     }
 
-
     @Bean
     public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder(10);
     }
 
     @Bean
-    public JwtAuthenticationFilter authenticationTokenFilterBean() throws Exception {
+    public JwtAuthenticationFilter authenticationTokenFilterBean() {
         return new JwtAuthenticationFilter();
-
     }
 
     @Autowired
@@ -79,6 +79,8 @@ public class WebSecurityConfig
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                .and()
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);

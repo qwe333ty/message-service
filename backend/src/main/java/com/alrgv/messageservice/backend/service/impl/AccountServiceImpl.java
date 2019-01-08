@@ -3,9 +3,7 @@ package com.alrgv.messageservice.backend.service.impl;
 import com.alrgv.messageservice.backend.entity.Account;
 import com.alrgv.messageservice.backend.repository.AccountRepository;
 import com.alrgv.messageservice.backend.service.AccountService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,31 +25,46 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         this.repository = repository;
     }
 
-    @PreAuthorize("hasRole('ADMIN') and hasAnyAuthority('CREATE')")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('CREATE')")
+    @Override
+    public Account create(Account account) {
+        return repository.save(account);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('EDIT')")
     @Override
     public Account save(Account account) {
         return repository.save(account);
     }
 
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('EDIT')")
     @Override
     public Iterable<Account> saveAll(Iterable<Account> accounts) {
         return repository.saveAll(accounts);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER') and hasAuthority('READ')")
     @Override
     public Optional<Account> findById(Integer id) {
         return repository.findById(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('READ')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER') and hasAuthority('READ')")
     @Override
     public Page<Account> findAll(Pageable pageable) {
         return repository.findAll(pageable);
     }
 
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('DELETE')")
     @Override
     public void delete(Integer id) {
         repository.deleteById(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('CREATE')")
+    @Override
+    public boolean existsById(Integer id) {
+        return repository.existsById(id);
     }
 
     @Override
