@@ -1,0 +1,33 @@
+<mat-vertical-stepper #stepper linear="true">
+  <mat-step [stepControl]="firstNameFormGroup">
+    <form [formGroup]="firstNameFormGroup">
+      <ng-template matStepLabel>Fill out your first name</ng-template>
+      <mat-form-field>
+        <input formControlName="firstNameCtrl" matInput placeholder="First name" required>
+      </mat-form-field>
+      <div>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step [stepControl]="secondNameFormGroup">
+    <form [formGroup]="secondNameFormGroup">
+      <ng-template matStepLabel>Fill out your last name</ng-template>
+      <mat-form-field>
+        <input formControlName="secondNameCtrl" matInput placeholder="Last name" required>
+      </mat-form-field>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </form>
+  </mat-step>
+  <mat-step>
+    <ng-template matStepLabel>Done</ng-template>
+    You are now done.
+    <div>
+      <button mat-button matStepperPrevious>Back</button>
+      <button (click)="stepper.reset()" mat-button>Reset</button>
+    </div>
+  </mat-step>
+</mat-vertical-stepper>

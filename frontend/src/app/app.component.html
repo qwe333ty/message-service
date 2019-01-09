@@ -1,0 +1,78 @@
+<mat-toolbar>
+  <a (click)="drawer.toggle()" color="warn" mat-fab>
+    <mat-icon mat-list-icon>dehaze</mat-icon>
+  </a>
+  <span class="text-toolbar-begin"></span>
+
+  <i class="material-icons">
+    email
+  </i>
+  <span>My message service</span>
+  <span class="center-spacer"></span>
+
+  <ng-template [ngIf]="authenticated">
+    <i class="material-icons">
+      search
+    </i>
+    <form class="example-form">
+      <mat-form-field class="example-full-width">
+        <input [formControl]="myControl" [matAutocomplete]="auto" aria-label="Number" matInput placeholder="Pick one"
+               type="text">
+        <mat-autocomplete #auto="matAutocomplete" autoActiveFirstOption>
+          <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </form>
+
+    <span class="end-spacer"></span>
+    <a color="primary" mat-fab routerLink=".">
+      <mat-icon mat-list-icon>notifications_active</mat-icon>
+    </a>
+    <span class="small-padding"></span>
+    <a color="accent" mat-fab routerLink=".">
+      <mat-icon mat-list-icon>account_circle</mat-icon>
+    </a>
+    <span class="small-padding"></span>
+    <span>Alexandr Rogovoy</span>
+  </ng-template>
+
+
+</mat-toolbar>
+
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" mode="side">
+    <mat-list>
+      <ng-template [ngIf]="authenticated">
+        <mat-chip-list class="mat-chip-list-stacked">
+          <mat-list-item *ngFor="let type of messageTypes">
+            <mat-chip routerLink="{{type.routerLink}}">
+              <mat-icon mat-list-icon>{{type.symbol}}</mat-icon>
+              <span class="small-padding"></span>
+              <p mat-line>{{type.name}}</p>
+            </mat-chip>
+          </mat-list-item>
+        </mat-chip-list>
+      </ng-template>
+      <ng-template [ngIf]="!authenticated">
+        <mat-chip-list class="mat-chip-list-stacked">
+          <mat-list-item *ngFor="let type of unauthenticatedMessageTypes">
+            <mat-chip routerLink="{{type.routerLink}}">
+              <mat-icon mat-list-icon>{{type.symbol}}</mat-icon>
+              <span class="small-padding"></span>
+              <p mat-line>{{type.name}}</p>
+            </mat-chip>
+          </mat-list-item>
+        </mat-chip-list>
+      </ng-template>
+      <mat-divider></mat-divider>
+    </mat-list>
+    <mat-divider></mat-divider>
+  </mat-drawer>
+
+  <div class="example-sidenav-content">
+    <router-outlet></router-outlet>
+  </div>
+
+</mat-drawer-container>
