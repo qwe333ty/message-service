@@ -5,6 +5,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
+  MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule,
   MatButtonModule,
   MatChipsModule,
@@ -13,8 +14,10 @@ import {
   MatIconModule,
   MatInputModule,
   MatListModule,
+  MatProgressBarModule,
   MatSelectModule,
   MatSidenavModule,
+  MatSnackBarModule,
   MatStepperModule,
   MatToolbarModule,
 } from '@angular/material';
@@ -22,6 +25,7 @@ import {
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {LoginComponent} from './login/login.component';
 import {RegistrationComponent} from './registration/registration.component';
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -47,9 +51,16 @@ import {RegistrationComponent} from './registration/registration.component';
     MatChipsModule,
     MatDividerModule,
     MatStepperModule,
+    MatProgressBarModule,
+    HttpClientModule,
+    MatSnackBarModule,
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [
+    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 4000}}
+  ],
+  bootstrap: [
+    AppComponent
+  ]
 })
 export class AppModule {
 }

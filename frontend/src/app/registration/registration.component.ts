@@ -8,10 +8,13 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 })
 export class RegistrationComponent implements OnInit {
 
+  linear: boolean = true;
+  exists: boolean = false;
   firstNameFormGroup: FormGroup;
   secondNameFormGroup: FormGroup;
   usernameFormGroup: FormGroup;
   passwordFormGroup: FormGroup;
+  emailFormGroup: FormGroup;
 
   constructor(private _formBuilder: FormBuilder) {
   }
@@ -56,6 +59,15 @@ export class RegistrationComponent implements OnInit {
           Validators.pattern("[a-zA-Z0-9_$&#]+")
         ])
       ]
+    });
+    this.emailFormGroup = this._formBuilder.group({
+      email: ['',
+        Validators.compose([
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(40),
+          Validators.pattern('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-z]{1,10}$')
+        ])]
     })
   }
 

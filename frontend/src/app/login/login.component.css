@@ -10,9 +10,9 @@
   justify-content: center;
 }
 
-.login-content {
-  width: 100%;
+.content {
   display: flex;
+  height: 100%;
   align-items: center;
   justify-content: center;
 }

@@ -37,8 +37,6 @@
     <span class="small-padding"></span>
     <span>Alexandr Rogovoy</span>
   </ng-template>
-
-
 </mat-toolbar>
 
 <mat-drawer-container class="example-container" autosize>
@@ -46,7 +44,7 @@
     <mat-list>
       <ng-template [ngIf]="authenticated">
         <mat-chip-list class="mat-chip-list-stacked">
-          <mat-list-item *ngFor="let type of messageTypes">
+          <mat-list-item *ngFor="let type of authenticatedMessageTypes">
             <mat-chip routerLink="{{type.routerLink}}">
               <mat-icon mat-list-icon>{{type.symbol}}</mat-icon>
               <span class="small-padding"></span>
@@ -71,7 +69,10 @@
     <mat-divider></mat-divider>
   </mat-drawer>
 
-  <div class="example-sidenav-content">
+  <div>
+    <mat-progress-bar
+      *ngIf="loading" color="accent" mode="indeterminate">
+    </mat-progress-bar>
     <router-outlet></router-outlet>
   </div>
 

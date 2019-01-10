@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import {Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router} from "@angular/router";
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,7 @@ import {map, startWith} from 'rxjs/operators';
 })
 export class AppComponent implements OnInit {
 
+  loading: boolean = false;
   authenticated: boolean = false;
 
   unauthenticatedMessageTypes: any[] = [
@@ -25,7 +27,7 @@ export class AppComponent implements OnInit {
     }
   ];
 
-  messageTypes: any[] = [
+  authenticatedMessageTypes: any[] = [
     {
       name: 'Inbox',
       symbol: 'inbox',
@@ -56,6 +58,28 @@ export class AppComponent implements OnInit {
   myControl = new FormControl();
   options: string[] = ['One', 'Two', 'Three'];
   filteredOptions: Observable<string[]>;
+
+
+  constructor(private router: Router) {
+    this.router.events.subscribe((event: Event) => {
+      switch (true) {
+        case event instanceof NavigationStart: {
+          this.loading = true;
+          break;
+        }
+
+        case event instanceof NavigationEnd:
+        case event instanceof NavigationCancel:
+        case event instanceof NavigationError: {
+          this.loading = false;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+    });
+  }
 
   ngOnInit() {
     this.filteredOptions = this.myControl.valueChanges.pipe(

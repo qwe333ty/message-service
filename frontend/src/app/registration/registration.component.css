@@ -1,0 +1,13 @@
+.login-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-content {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

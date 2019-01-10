@@ -2,12 +2,10 @@ package com.alrgv.messageservice.backend.controller;
 
 import com.alrgv.messageservice.backend.security.JwtTokenUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,9 +46,9 @@ public class AuthenticationController {
                             userDetails.password)
             );
             final String token = jwtTokenUtil.generateToken(authentication);
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(new JwtTokenUtil.Token(token));
         } catch (Exception e) {
-            return ResponseEntity.ok("");
+            return ResponseEntity.ok(new JwtTokenUtil.Token(""));
         }
     }
 

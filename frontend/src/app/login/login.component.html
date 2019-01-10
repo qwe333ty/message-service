@@ -1,3 +1,7 @@
+<div *ngIf="showProgressBar">
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</div>
+
 <h1 class="login-text">Welcome to Login page</h1>
 
 <table class="login-content" cellspacing="25">
@@ -8,14 +12,14 @@
           <input matInput placeholder="Email or username" [formControl]="emailFormControl">
           <mat-hint align="end">{{emailFormControl.value.length}} / 40</mat-hint>
           <mat-error *ngIf="emailFormControl.hasError('maxlength')">
-            *Too much <strong>long</strong> email
+            *Too much <strong>long</strong> email or username
           </mat-error>
           <mat-error *ngIf="emailFormControl.hasError('pattern') && !emailFormControl.hasError('required')">
             *Please enter a <strong>valid</strong> email address or username (Use only a-z, A-Z, 0-9, ., _, %, +, -, @
             symbols)]+
           </mat-error>
           <mat-error *ngIf="emailFormControl.hasError('required')">
-            *Email is <strong>required</strong>
+            *Email or username is <strong>required</strong>
           </mat-error>
           <button mat-button *ngIf="emailFormControl.value" matSuffix mat-icon-button aria-label="Clear"
                   (click)="emailFormControl.setValue('')">
@@ -26,7 +30,7 @@
     </td>
     <td>
       <mat-form-field class="example-full-width">
-        <input matInput placeholder="Password" [formControl]="passwordFormControl">
+        <input matInput placeholder="Password" type="password" [formControl]="passwordFormControl">
         <mat-hint align="end">{{passwordFormControl.value.length}} / 256</mat-hint>
         <mat-error *ngIf="passwordFormControl.hasError('minlength') && !passwordFormControl.hasError('required')">
           *Please enter <strong>longer</strong> password
@@ -48,7 +52,7 @@
     </td>
     <td>
       <span class="small-padding"></span>
-      <button mat-raised-button color="primary">LOG IN</button>
+      <button mat-raised-button color="primary" (click)="login()">LOG IN</button>
     </td>
   </tr>
 </table>

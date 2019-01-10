@@ -1,33 +1,147 @@
-<mat-vertical-stepper #stepper linear="true">
-  <mat-step [stepControl]="firstNameFormGroup">
-    <form [formGroup]="firstNameFormGroup">
-      <ng-template matStepLabel>Fill out your first name</ng-template>
-      <mat-form-field>
-        <input formControlName="firstNameCtrl" matInput placeholder="First name" required>
-      </mat-form-field>
-      <div>
-        <button mat-button matStepperNext>Next</button>
-      </div>
-    </form>
-  </mat-step>
-  <mat-step [stepControl]="secondNameFormGroup">
-    <form [formGroup]="secondNameFormGroup">
-      <ng-template matStepLabel>Fill out your last name</ng-template>
-      <mat-form-field>
-        <input formControlName="secondNameCtrl" matInput placeholder="Last name" required>
-      </mat-form-field>
+<div class="all-content">
+  <h1 class="login-text">Welcome to Registration page</h1>
+
+  <mat-vertical-stepper #stepper [linear]="linear">
+    <mat-step [stepControl]="firstNameFormGroup">
+      <form [formGroup]="firstNameFormGroup">
+        <ng-template matStepLabel>Fill out your first name</ng-template>
+        <mat-form-field>
+          <input formControlName="firstNameCtrl" matInput placeholder="First name" required>
+          <mat-error *ngIf="firstNameFormGroup.get('firstNameCtrl').hasError('required')">
+            *First name is <strong>required</strong>
+          </mat-error>
+          <mat-error
+            *ngIf="!firstNameFormGroup.get('firstNameCtrl').hasError('required')
+           && firstNameFormGroup.get('firstNameCtrl').hasError('pattern')">
+            *Please enter a <strong>valid</strong> first name (a-z, A-Z)
+          </mat-error>
+          <mat-error *ngIf="firstNameFormGroup.get('firstNameCtrl').hasError('minlength')">
+            *Please enter <strong>longer</strong> first name
+          </mat-error>
+          <mat-error *ngIf="firstNameFormGroup.get('firstNameCtrl').hasError('maxlength')">
+            *Too much <strong>long</strong> first name
+          </mat-error>
+          <button (click)="firstNameFormGroup.get('firstNameCtrl').setValue('')"
+                  *ngIf="firstNameFormGroup.get('firstNameCtrl').value" aria-label="Clear" mat-button
+                  mat-icon-button
+                  matSuffix>
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="secondNameFormGroup">
+      <form [formGroup]="secondNameFormGroup">
+        <ng-template matStepLabel>Fill out your last name</ng-template>
+        <mat-form-field>
+          <input formControlName="secondNameCtrl" matInput placeholder="Last name" required>
+          <mat-error *ngIf="secondNameFormGroup.get('secondNameCtrl').hasError('required')">
+            *Last name is <strong>required</strong>
+          </mat-error>
+          <mat-error *ngIf="!secondNameFormGroup.get('secondNameCtrl').hasError('required')
+        && secondNameFormGroup.get('secondNameCtrl').hasError('pattern')">
+            *Please enter a <strong>valid</strong> last name (a-z, A-Z)
+          </mat-error>
+          <mat-error *ngIf="secondNameFormGroup.get('secondNameCtrl').hasError('minlength')">
+            *Please enter <strong>longer</strong> last name
+          </mat-error>
+          <mat-error *ngIf="secondNameFormGroup.get('secondNameCtrl').hasError('maxlength')">
+            *Too much <strong>long</strong> last name
+          </mat-error>
+          <button (click)="secondNameFormGroup.get('secondNameCtrl').setValue('')"
+                  *ngIf="secondNameFormGroup.get('secondNameCtrl').value" aria-label="Clear" mat-button mat-icon-button
+                  matSuffix>
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="usernameFormGroup">
+      <form [formGroup]="usernameFormGroup">
+        <ng-template matStepLabel>Fill out your username</ng-template>
+        <mat-form-field>
+          <input formControlName="usernameCtrl" matInput placeholder="Username" required>
+          <mat-error *ngIf="usernameFormGroup.get('usernameCtrl').hasError('required')">
+            *Username is <strong>required</strong>
+          </mat-error>
+          <mat-error *ngIf="!usernameFormGroup.get('usernameCtrl').hasError('required')
+         && usernameFormGroup.get('usernameCtrl').hasError('pattern')">
+            *Please enter a <strong>valid</strong> username (a-z, A-Z, 0-9, ., _)
+          </mat-error>
+          <mat-error *ngIf="usernameFormGroup.get('usernameCtrl').hasError('minlength')">
+            *Please enter <strong>longer</strong> username
+          </mat-error>
+          <mat-error *ngIf="usernameFormGroup.get('usernameCtrl').hasError('maxlength')">
+            *Too much <strong>long</strong> username
+          </mat-error>
+          <mat-error *ngIf="exists">
+            *This username is already contains in our service
+          </mat-error>
+          <button (click)="usernameFormGroup.get('usernameCtrl').setValue('')"
+                  *ngIf="usernameFormGroup.get('usernameCtrl').value" aria-label="Clear" mat-button mat-icon-button
+                  matSuffix>
+            <mat-icon>close</mat-icon>
+          </button>
+          <button *ngIf="exists" aria-label="Warning" disabled mat-button mat-icon-button matSuffix>
+            <mat-icon>warning</mat-icon>
+          </button>
+          <button *ngIf="!exists" aria-label="Warning" disabled mat-button mat-icon-button matSuffix>
+            <mat-icon>check_circle_outline</mat-icon>
+          </button>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="passwordFormGroup">
+      <form [formGroup]="passwordFormGroup">
+        <ng-template matStepLabel>Fill out your password</ng-template>
+        <mat-form-field>
+          <input formControlName="passwordCtrl" matInput placeholder="Password" required type="password">
+          <mat-error *ngIf="passwordFormGroup.get('passwordCtrl').hasError('required')">
+            *Password is <strong>required</strong>
+          </mat-error>
+          <mat-error *ngIf="!passwordFormGroup.get('passwordCtrl').hasError('required')
+         && passwordFormGroup.get('passwordCtrl').hasError('pattern')">
+            *Please enter a <strong>valid</strong> password (a-z, A-Z, 0-9, _, $, &, #)
+          </mat-error>
+          <mat-error *ngIf="passwordFormGroup.get('passwordCtrl').hasError('minlength')">
+            *Please enter <strong>longer</strong> password
+          </mat-error>
+          <mat-error *ngIf="passwordFormGroup.get('passwordCtrl').hasError('maxlength')">
+            *Too much <strong>long</strong> password
+          </mat-error>
+          <button (click)="passwordFormGroup.get('passwordCtrl').setValue('')"
+                  *ngIf="passwordFormGroup.get('passwordCtrl').value" aria-label="Clear" mat-button mat-icon-button
+                  matSuffix>
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Done</ng-template>
+      You are now done.
+      <mat-divider></mat-divider>
       <div>
         <button mat-button matStepperPrevious>Back</button>
-        <button mat-button matStepperNext>Next</button>
+        <button (click)="stepper.reset()" mat-button>Reset</button>
+        <button mat-button>SIGN IN</button>
       </div>
-    </form>
-  </mat-step>
-  <mat-step>
-    <ng-template matStepLabel>Done</ng-template>
-    You are now done.
-    <div>
-      <button mat-button matStepperPrevious>Back</button>
-      <button (click)="stepper.reset()" mat-button>Reset</button>
-    </div>
-  </mat-step>
-</mat-vertical-stepper>
+    </mat-step>
+  </mat-vertical-stepper>
+
+</div>
