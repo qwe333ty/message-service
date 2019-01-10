@@ -26,6 +26,11 @@ public class AccountController {
         return service.findAll(pageable);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/user/{username}")
+    public Optional<Account> findUserByUsername(@PathVariable(name = "username") String username) {
+        return service.loadByUsername(username);
+    }
+
     @RequestMapping(method = RequestMethod.PUT)
     public Account create(@RequestBody Account account) {
         return service.create(account);

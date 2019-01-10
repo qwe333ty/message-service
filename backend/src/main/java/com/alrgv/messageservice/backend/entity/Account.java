@@ -22,7 +22,7 @@ public class Account {
 
     @NonNull
     @Column(name = "user_name")
-    private String userName;
+    private String username;
 
     @NonNull
     @Column(name = "password")

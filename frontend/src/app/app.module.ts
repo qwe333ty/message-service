@@ -25,7 +25,9 @@ import {
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {LoginComponent} from './login/login.component';
 import {RegistrationComponent} from './registration/registration.component';
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import {InterceptorService} from "./service/interceptor/interceptor.service";
+import {TokenStorageService} from "./service/tokenStorage/token-storage.service";
 
 @NgModule({
   declarations: [
@@ -56,7 +58,14 @@ import {HttpClientModule} from "@angular/common/http";
     MatSnackBarModule,
   ],
   providers: [
-    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 4000}}
+    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 4000}},
+    InterceptorService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: InterceptorService,
+      multi: true
+    },
+    TokenStorageService
   ],
   bootstrap: [
     AppComponent

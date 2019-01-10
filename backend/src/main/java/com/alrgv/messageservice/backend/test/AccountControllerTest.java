@@ -1,30 +1,25 @@
 package com.alrgv.messageservice.backend.test;
 
-import com.alrgv.messageservice.backend.controller.AccountController;
 import com.alrgv.messageservice.backend.entity.Account;
 import com.alrgv.messageservice.backend.entity.AccountAuthority;
 import com.alrgv.messageservice.backend.entity.RestPageImpl;
-import org.assertj.core.util.Lists;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,7 +50,7 @@ public class AccountControllerTest {
     @Test
     public void B() throws Exception {
         Account account = new Account();
-        account.setUserName("zubr");
+        account.setUsername("zubr");
         account.setPassword("belarus");
 
         AccountAuthority f = new AccountAuthority();
@@ -72,7 +67,7 @@ public class AccountControllerTest {
                         account,
                         Account.class)
                 .getBody();
-        assertThat(response.getUserName()).isEqualTo("zubr");
+        assertThat(response.getUsername()).isEqualTo("zubr");
         assertThat(response.getPassword()).isEqualTo("belarus");
 
         Page<Account> page = restTemplate.exchange(

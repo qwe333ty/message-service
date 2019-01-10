@@ -20,4 +20,6 @@ public interface AccountService {
     void delete(Integer id);
 
     boolean existsById(Integer id);
+
+    Optional<Account> loadByUsername(String username);
 }

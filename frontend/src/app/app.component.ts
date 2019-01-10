@@ -1,8 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
+import {map, mergeMap, startWith} from 'rxjs/operators';
 import {Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router} from "@angular/router";
+import {ShareResourceService} from "./service/share/share-resource.service";
+import {TokenStorageService} from "./service/tokenStorage/token-storage.service";
+import {RequestService} from "./service/request/request.service";
+import {User} from "./entity/User";
 
 @Component({
   selector: 'app-root',
@@ -13,6 +17,8 @@ export class AppComponent implements OnInit {
 
   loading: boolean = false;
   authenticated: boolean = false;
+
+  userDetails: User = new User();
 
   unauthenticatedMessageTypes: any[] = [
     {
@@ -59,8 +65,10 @@ export class AppComponent implements OnInit {
   options: string[] = ['One', 'Two', 'Three'];
   filteredOptions: Observable<string[]>;
 
-
-  constructor(private router: Router) {
+  constructor(private router: Router,
+              private resourceService: ShareResourceService,
+              private tokenStorageService: TokenStorageService,
+              private requestService: RequestService) {
     this.router.events.subscribe((event: Event) => {
       switch (true) {
         case event instanceof NavigationStart: {
@@ -82,15 +90,28 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.userDetails.username = 'qwe';
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
+    this.resourceService.authorized$.pipe(
+      mergeMap(value => {
+        this.authenticated = true;
+
+        let jwtData = this.tokenStorageService.getToken().split('.')[1];
+        let decodedJwtJsonData = window.atob(jwtData);
+        let decodedJwtData = JSON.parse(decodedJwtJsonData);
+
+        return this.requestService.findUserByUsername(decodedJwtData.sub);
+      })
+    ).subscribe(value => {
+      this.userDetails = value;
+    });
   }
 
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-
     return this.options.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
   }
 }

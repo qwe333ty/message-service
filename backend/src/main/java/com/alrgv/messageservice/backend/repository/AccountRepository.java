@@ -12,5 +12,5 @@ public interface AccountRepository extends
         CrudRepository<Account, Integer>,
         PagingAndSortingRepository<Account, Integer> {
 
-    Optional<Account> findAccountByUserName(String username);
+    Optional<Account> findAccountByUsername(String username);
 }

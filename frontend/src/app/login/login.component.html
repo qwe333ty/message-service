@@ -11,6 +11,9 @@
         <mat-form-field class="example-full-width">
           <input matInput placeholder="Email or username" [formControl]="emailFormControl">
           <mat-hint align="end">{{emailFormControl.value.length}} / 40</mat-hint>
+          <mat-error *ngIf="emailFormControl.hasError('minlength')">
+            *Please enter <strong>longer</strong> email or username
+          </mat-error>
           <mat-error *ngIf="emailFormControl.hasError('maxlength')">
             *Too much <strong>long</strong> email or username
           </mat-error>
@@ -52,7 +55,16 @@
     </td>
     <td>
       <span class="small-padding"></span>
-      <button mat-raised-button color="primary" (click)="login()">LOG IN</button>
+      <button mat-raised-button color="primary" (click)="login()"
+              [disabled]="emailFormControl.hasError('minlength') ||
+                          emailFormControl.hasError('maxlength') ||
+                          emailFormControl.hasError('pattern') ||
+                          emailFormControl.hasError('required') ||
+                          passwordFormControl.hasError('minlength') ||
+                          passwordFormControl.hasError('maxlength') ||
+                          passwordFormControl.hasError('required') ||
+                          passwordFormControl.hasError('pattern')">LOG IN
+      </button>
     </td>
   </tr>
 </table>

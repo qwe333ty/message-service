@@ -68,12 +68,17 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     @Override
+    public Optional<Account> loadByUsername(String username) {
+        return repository.findAccountByUsername(username);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Account> accountOptional = repository.findAccountByUserName(username);
+        Optional<Account> accountOptional = repository.findAccountByUsername(username);
         if (!accountOptional.isPresent())
             throw new UsernameNotFoundException("User not found.");
 
         Account account = accountOptional.get();
-        return new User(account.getUserName(), account.getPassword(), account.getAuthorities());
+        return new User(account.getUsername(), account.getPassword(), account.getAuthorities());
     }
 }

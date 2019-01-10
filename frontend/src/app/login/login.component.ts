@@ -4,6 +4,7 @@ import {RequestService} from "../service/request/request.service";
 import {TokenStorageService} from "../service/tokenStorage/token-storage.service";
 import {Subscription} from "rxjs";
 import {MatSnackBar} from "@angular/material";
+import {ShareResourceService} from "../service/share/share-resource.service";
 
 @Component({
   selector: 'app-login',
@@ -14,11 +15,13 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   showProgressBar: boolean = false;
   wrongUserDetails: boolean = false;
+  authenticated: boolean = false;
   private subscriptions: Subscription[] = [];
 
   emailFormControl = new FormControl('', [
     Validators.required,
     Validators.pattern("[a-zA-Z0-9._%+-@]+"),
+    Validators.minLength(2),
     Validators.maxLength(40),
   ]);
 
@@ -31,7 +34,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor(private requestService: RequestService,
               private tokenStorageService: TokenStorageService,
-              public snackBar: MatSnackBar) {
+              private snackBar: MatSnackBar,
+              private resourceService: ShareResourceService) {
   }
 
   ngOnInit() {
@@ -55,20 +59,19 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.requestService
         .getToken(this.emailFormControl.value, this.passwordFormControl.value)
         .subscribe(token => {
-
           if (!token || !token.tok || token.tok === '') {
             this.wrongUserDetails = true;
+            this.authenticated = false;
             this.showProgressBar = false;
             this.openSnackBar('The username and password that you entered did not match records. Please double-check and try again.', "Close");
             return;
           }
+
           this.tokenStorageService.saveToken(token.tok);
+          this.wrongUserDetails = false;
 
-          let jwtData = token.tok.split('.')[1];
-          let decodedJwtJsonData = window.atob(jwtData);
-          let decodedJwtData = JSON.parse(decodedJwtJsonData);
-
-          console.log("Data from token", decodedJwtJsonData);
+          this.authenticated = true;
+          this.resourceService.emitAuthorizedObs(this.authenticated);
 
           this.showProgressBar = false;
         })
