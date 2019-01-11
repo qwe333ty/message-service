@@ -107,6 +107,7 @@ export class AppComponent implements OnInit {
       })
     ).subscribe(value => {
       this.userDetails = value;
+      this.requestService.userId = value.id;
     });
   }
 

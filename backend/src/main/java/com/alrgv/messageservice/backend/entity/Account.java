@@ -3,6 +3,7 @@ package com.alrgv.messageservice.backend.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -13,10 +14,12 @@ import java.util.Collection;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@RequiredArgsConstructor
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @NonNull
     @Column(name = "id")
     private Integer id;
 
@@ -33,4 +36,5 @@ public class Account {
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "authority_id")})
     private Collection<AccountAuthority> authorities;
+
 }

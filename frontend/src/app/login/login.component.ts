@@ -71,7 +71,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.wrongUserDetails = false;
 
           this.authenticated = true;
-          this.resourceService.emitAuthorizedObs(this.authenticated);
+          this.resourceService.nextAuthorizedObs(this.authenticated);
 
           this.showProgressBar = false;
         })

@@ -9,6 +9,8 @@ import {User} from "../../entity/User";
 })
 export class RequestService {
 
+  userId: number;
+
   constructor(private http: HttpClient) {
   }
 

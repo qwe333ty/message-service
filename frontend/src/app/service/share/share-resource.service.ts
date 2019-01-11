@@ -8,11 +8,17 @@ export class ShareResourceService {
 
   // Observable string sources
   private authorizedSource = new Subject<boolean>();
+  private userIdSource = new Subject<number>();
 
   // Observable string streams
   authorized$ = this.authorizedSource.asObservable();
+  userId$ = this.userIdSource.asObservable();
 
-  emitAuthorizedObs(bln: boolean) {
+  nextAuthorizedObs(bln: boolean) {
     this.authorizedSource.next(bln);
+  }
+
+  nextUserId(userId: number) {
+    this.userIdSource.next(userId);
   }
 }
