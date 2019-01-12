@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.sql.SQLException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -27,10 +28,14 @@ public class MessageRepositoryTest {
     @Test
     public void A() {
         log.info("=====================================================================");
-        repository.findMessagesByUserIdAndParams(PageRequest.of(0, 10),
-                1L,
-                Lists.list(true, null),
-                Lists.list(true, null)).getContent().forEach(message -> log.info(message.toString()));
+        try {
+            repository.findMessagesByUserIdAndParams(PageRequest.of(0, 10),
+                    1L,
+                    Lists.list(true, null),
+                    Lists.list(true, null)).getContent().forEach(message -> log.info(message.toString()));
+        } catch (SQLException e) {
+            log.error("We have SQLException: {}", e.getMessage());
+        }
         log.info("=====================================================================");
     }
 }
