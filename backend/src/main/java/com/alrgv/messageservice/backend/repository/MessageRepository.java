@@ -16,7 +16,9 @@ public interface MessageRepository {
                                                 @NonNull List<Object> importantParams,
                                                 @NonNull List<Object> starredParams);
 
-    Message save(Message message, boolean isMerge);
+    <S extends Message> S save(S message, boolean isMerge) throws RuntimeException;
 
-    void delete(long id);
+    int delete(long id) throws Exception;
+
+    int deleteAll(Iterable<? extends Message> messages) throws RuntimeException;
 }

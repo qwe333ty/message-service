@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.support.PageableExecutionUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.lang.NonNull;
@@ -33,7 +32,6 @@ public class MessageRepositoryImpl implements MessageRepository {
     private static final Logger log = LoggerFactory.getLogger(MessageRepositoryImpl.class);
 
     private Connection connection;
-    private JdbcTemplate jdbcTemplate;
     private PreparedStatementCreator updatePreparedStatementCreator,
             insertPreparedStatementCreator, countPreparedStatementCreator,
             findPreparedStatementCreator, deletePreparedStatementCreator;
@@ -41,13 +39,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Autowired
     public MessageRepositoryImpl(DataSource dataSource) throws SQLException {
         this.connection = dataSource.getConnection();
-        this.connection.setAutoCommit(false);
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
 
         this.updatePreparedStatementCreator = con -> con.prepareStatement("UPDATE message m " +
-                "SET from_user = ? AND to_user = ? AND sent = ? AND subject = ? " +
-                "AND message_text = ? AND send_status = ? AND read_status = ? " +
-                "AND starred = ? AND important = ? " +
+                "SET from_user = ?, to_user = ?, sent = ?, subject = ?, " +
+                "message_text = ?, send_status = ?, read_status = ?, " +
+                "starred = ?, important = ? " +
                 "WHERE m.id = ?");
         this.insertPreparedStatementCreator = con -> con.prepareStatement(
                 "INSERT INTO message (from_user, to_user, sent, subject, message_text, send_status, " +
@@ -63,7 +59,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                         "INNER JOIN user toUser on m.to_user = toUser.id " +
                         "WHERE fromUser.id = ? AND m.important in (?, ?) AND m.starred in (?, ?) LIMIT ? OFFSET ?");
         this.deletePreparedStatementCreator = con -> con.prepareStatement(
-                "DELETE FROM message m WHERE m.id = ?"
+                "DELETE m FROM message m WHERE m.id = ?"
         );
     }
 
@@ -74,8 +70,12 @@ public class MessageRepositoryImpl implements MessageRepository {
                     countPreparedStatementCreator.createPreparedStatement(connection);
             countStatement.setLong(1, id);
             ResultSet rs = countStatement.executeQuery();
+
             return rs.next() ? rs.getLong(1) : 0L;
         } catch (SQLException e) {
+            log.error("SQL state: {}, error code: {}. Error: {}",
+                    e.getSQLState(), e.getErrorCode(), e.getMessage());
+            e.printStackTrace();
             return 0L;
         }
     }
@@ -96,7 +96,8 @@ public class MessageRepositoryImpl implements MessageRepository {
 
         List<Message> userMessages = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = findPreparedStatementCreator.createPreparedStatement(connection);
+            PreparedStatement preparedStatement =
+                    findPreparedStatementCreator.createPreparedStatement(connection);
             preparedStatement.setLong(1, id);
             preparedStatement.setObject(2, importantParams.get(0));
             preparedStatement.setObject(3, importantParams.get(1));
@@ -125,15 +126,16 @@ public class MessageRepositoryImpl implements MessageRepository {
                 userMessages.add(message);
             }
         } catch (SQLException e) {
-            log.error("Can't find messages with method params: {}, {}, {}, {} OR read this: {} WHERE sql state = {}",
+            log.error("Possibly, can't find messages with method params: {}, {}, {}, {} OR read this: {} WHERE sql state = {}",
                     pageable, id, importantParams, starredParams, e.getMessage(), e.getSQLState());
+            e.printStackTrace();
         }
 
         return PageableExecutionUtils.getPage(userMessages, pageable, () -> count(id));
     }
 
     @Override
-    public Message save(Message message, boolean isMerge) {
+    public <S extends Message> S save(S message, boolean isMerge) {
         PreparedStatementSetter setter = preparedStatement -> {
             preparedStatement.setLong(1, message.getFrom().getId());
             preparedStatement.setLong(2, message.getTo().getId());
@@ -149,38 +151,108 @@ public class MessageRepositoryImpl implements MessageRepository {
         };
 
         try {
+            PreparedStatement preparedStatement;
             if (isMerge) {
-                PreparedStatement preparedStatement =
-                        insertPreparedStatementCreator.createPreparedStatement(connection);
+                preparedStatement = insertPreparedStatementCreator.createPreparedStatement(connection);
+                setter.setValues(preparedStatement);
 
-                preparedStatement.executeQuery();
+                preparedStatement.executeUpdate();
                 ResultSet resultSet = preparedStatement.getGeneratedKeys();
                 if (resultSet.next()) {
                     message.setId(resultSet.getLong(1));
                     return message;
                 } else {
-                    throw new SQLException("Creating user failed, no ID obtained.");
+                    throw new SQLException("Creating message failed, no ID obtained.");
                 }
             } else {
-                jdbcTemplate.query(updatePreparedStatementCreator,
-                        setter, resultSet -> 0L);
+                preparedStatement = updatePreparedStatementCreator.createPreparedStatement(connection);
+                setter.setValues(preparedStatement);
+
+                preparedStatement.executeUpdate();
                 return message;
             }
         } catch (SQLException e) {
+            log.error("SQL state: {}, error code: {}. Error: {}",
+                    e.getSQLState(), e.getErrorCode(), e.getMessage());
+            e.printStackTrace();
             message.setId(-1L);
-            return message;
+            throw new RuntimeException();
         }
     }
 
     //add response entity with a representation of the status of the action (200)
     @Override
-    public void delete(long id) {
+    public int delete(long id) throws RuntimeException {
         try {
-            PreparedStatement preparedStatement = deletePreparedStatementCreator.createPreparedStatement(connection);
+            PreparedStatement preparedStatement =
+                    deletePreparedStatementCreator.createPreparedStatement(connection);
             preparedStatement.setLong(1, id);
-            preparedStatement.executeQuery();
+            return preparedStatement.executeUpdate();
         } catch (SQLException e) {
+            log.error("SQL state: {}, error code: {}. Error: {}",
+                    e.getSQLState(), e.getErrorCode(), e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException();
         }
+    }
+
+    @Override
+    public int deleteAll(Iterable<? extends Message> messages) throws RuntimeException {
+        PreparedStatement preparedStatement = null;
+        int count = 0;
+        try {
+            connection.setAutoCommit(false);
+            preparedStatement = deletePreparedStatementCreator.createPreparedStatement(connection);
+
+            int size = 0;
+            for (Message message : messages) {
+                preparedStatement.setLong(1, message.getId());
+                preparedStatement.addBatch();
+                size++;
+            }
+            if (size == 0)
+                return 0;
+
+            int[] successSqlEx = preparedStatement.executeBatch();
+            for (int i : successSqlEx) {
+                count += i;
+            }
+            connection.commit();
+
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            log.error("SQL state: {}, error code: {}. Error: {}",
+                    e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                log.error("SQL state: {}, error code: {}. Error: {}",
+                        e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+                e1.printStackTrace();
+                throw new RuntimeException();
+            }
+            throw new RuntimeException();
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("SQL state: {}, error code: {}. Error: {}",
+                        e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+                e.printStackTrace();
+            }
+
+            try {
+                if (preparedStatement != null && !preparedStatement.isClosed()) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                log.error("SQL state: {}, error code: {}. Error: {}",
+                        e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return count;
     }
 }
