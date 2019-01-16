@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -33,7 +34,7 @@ public class MessageRepositoryTest {
     private static final Logger log = LoggerFactory.getLogger(MessageRepositoryTest.class);
     private static List<Message> userMessages = new ArrayList<>();
 
-    @Resource(name = "messageRepository")
+    @Resource(name = "messageRepositoryImpl")
     private MessageRepository repository;
 
     private static void delimiter() {
@@ -132,7 +133,10 @@ public class MessageRepositoryTest {
         /*        Assert.assertFalse(userMessages.isEmpty());*/
 
         log.info("Delete all inserted by test entities");
-        int affectedRows = repository.deleteAll(userMessages);
+        int affectedRows = repository.deleteAll(userMessages
+                .stream()
+                .map(Message::getId)
+                .collect(Collectors.toList()));
         log.info("Deleted {} rows from database.", affectedRows);
         delimiter();
     }

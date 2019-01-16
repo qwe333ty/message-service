@@ -1,4 +1,4 @@
-package com.alrgv.messageservice.backend.repository;
+package com.alrgv.messageservice.backend.service;
 
 import com.alrgv.messageservice.backend.entity.Message;
 import org.springframework.data.domain.Page;
@@ -7,7 +7,7 @@ import org.springframework.lang.NonNull;
 
 import java.util.List;
 
-public interface MessageRepository {
+public interface MessageService {
 
     long count(long userId);
 

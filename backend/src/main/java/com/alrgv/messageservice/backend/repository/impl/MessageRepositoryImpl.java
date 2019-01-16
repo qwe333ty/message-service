@@ -26,7 +26,7 @@ import java.util.List;
  * <p>
  * JDBC implementation of MessageRepository
  */
-@Repository("messageRepository")
+@Repository("messageRepositoryImpl")
 public class MessageRepositoryImpl implements MessageRepository {
 
     private static final Logger log = LoggerFactory.getLogger(MessageRepositoryImpl.class);
@@ -64,11 +64,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public long count(long id) {
+    public long count(long userId) {
         try {
             PreparedStatement countStatement =
                     countPreparedStatementCreator.createPreparedStatement(connection);
-            countStatement.setLong(1, id);
+            countStatement.setLong(1, userId);
             ResultSet rs = countStatement.executeQuery();
 
             return rs.next() ? rs.getLong(1) : 0L;
@@ -86,9 +86,9 @@ public class MessageRepositoryImpl implements MessageRepository {
      */
     @Override
     public Page<Message> findMessagesByUserIdAndParams(@NonNull Pageable pageable,
-                                                       @NonNull Long id,
-                                                       @NonNull List<Object> importantParams,
-                                                       @NonNull List<Object> starredParams) {
+                                                       @NonNull Long userId,
+                                                       @NonNull List<Boolean> importantParams,
+                                                       @NonNull List<Boolean> starredParams) {
         if (!pageable.isPaged())
             return null;
         Assertions.assertThat(importantParams.size()).isEqualTo(2);
@@ -98,7 +98,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         try {
             PreparedStatement preparedStatement =
                     findPreparedStatementCreator.createPreparedStatement(connection);
-            preparedStatement.setLong(1, id);
+            preparedStatement.setLong(1, userId);
             preparedStatement.setObject(2, importantParams.get(0));
             preparedStatement.setObject(3, importantParams.get(1));
             preparedStatement.setObject(4, starredParams.get(0));
@@ -127,11 +127,11 @@ public class MessageRepositoryImpl implements MessageRepository {
             }
         } catch (SQLException e) {
             log.error("Possibly, can't find messages with method params: {}, {}, {}, {} OR read this: {} WHERE sql state = {}",
-                    pageable, id, importantParams, starredParams, e.getMessage(), e.getSQLState());
+                    pageable, userId, importantParams, starredParams, e.getMessage(), e.getSQLState());
             e.printStackTrace();
         }
 
-        return PageableExecutionUtils.getPage(userMessages, pageable, () -> count(id));
+        return PageableExecutionUtils.getPage(userMessages, pageable, () -> count(userId));
     }
 
     @Override
@@ -176,28 +176,28 @@ public class MessageRepositoryImpl implements MessageRepository {
                     e.getSQLState(), e.getErrorCode(), e.getMessage());
             e.printStackTrace();
             message.setId(-1L);
-            throw new RuntimeException();
+            return message;
         }
     }
 
     //add response entity with a representation of the status of the action (200)
     @Override
-    public int delete(long id) throws RuntimeException {
+    public int delete(long messageId) {
         try {
             PreparedStatement preparedStatement =
                     deletePreparedStatementCreator.createPreparedStatement(connection);
-            preparedStatement.setLong(1, id);
+            preparedStatement.setLong(1, messageId);
             return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error("SQL state: {}, error code: {}. Error: {}",
                     e.getSQLState(), e.getErrorCode(), e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException();
+            return 0;
         }
     }
 
     @Override
-    public int deleteAll(Iterable<? extends Message> messages) throws RuntimeException {
+    public int deleteAll(Iterable<Long> messages) {
         PreparedStatement preparedStatement = null;
         int count = 0;
         try {
@@ -205,8 +205,8 @@ public class MessageRepositoryImpl implements MessageRepository {
             preparedStatement = deletePreparedStatementCreator.createPreparedStatement(connection);
 
             int size = 0;
-            for (Message message : messages) {
-                preparedStatement.setLong(1, message.getId());
+            for (Long message : messages) {
+                preparedStatement.setLong(1, message);
                 preparedStatement.addBatch();
                 size++;
             }
@@ -222,16 +222,14 @@ public class MessageRepositoryImpl implements MessageRepository {
             connection.setAutoCommit(true);
         } catch (SQLException e) {
             log.error("SQL state: {}, error code: {}. Error: {}",
-                    e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+                    e.getSQLState(), e.getErrorCode(), e.getMessage());
             try {
                 connection.rollback();
             } catch (SQLException e1) {
                 log.error("SQL state: {}, error code: {}. Error: {}",
-                        e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+                        e.getSQLState(), e.getErrorCode(), e.getMessage());
                 e1.printStackTrace();
-                throw new RuntimeException();
             }
-            throw new RuntimeException();
         } finally {
             try {
                 if (connection != null) {
@@ -239,7 +237,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 }
             } catch (SQLException e) {
                 log.error("SQL state: {}, error code: {}. Error: {}",
-                        e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+                        e.getSQLState(), e.getErrorCode(), e.getMessage());
                 e.printStackTrace();
             }
 
@@ -249,7 +247,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 }
             } catch (SQLException e) {
                 log.error("SQL state: {}, error code: {}. Error: {}",
-                        e.getSQLState(), e.getErrorCode(), e.getErrorCode(), e.getMessage());
+                        e.getSQLState(), e.getErrorCode(), e.getMessage());
                 e.printStackTrace();
             }
         }

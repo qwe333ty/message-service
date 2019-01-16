@@ -8,18 +8,23 @@ import {
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule,
   MatButtonModule,
+  MatCardModule,
+  MatCheckboxModule,
   MatChipsModule,
   MatDividerModule,
   MatFormFieldModule,
   MatIconModule,
   MatInputModule,
   MatListModule,
+  MatPaginatorModule,
   MatProgressBarModule,
   MatSelectModule,
   MatSidenavModule,
+  MatSlideToggleModule,
   MatSnackBarModule,
   MatStepperModule,
   MatToolbarModule,
+  MatTooltipModule,
 } from '@angular/material';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -28,12 +33,16 @@ import {RegistrationComponent} from './registration/registration.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {InterceptorService} from "./service/interceptor/interceptor.service";
 import {TokenStorageService} from "./service/tokenStorage/token-storage.service";
+import {MessageTemplateComponent} from './message-template/message-template.component';
+import {InboxComponent} from './inbox/inbox.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    RegistrationComponent
+    RegistrationComponent,
+    MessageTemplateComponent,
+    InboxComponent
   ],
   imports: [
     BrowserModule,
@@ -56,6 +65,11 @@ import {TokenStorageService} from "./service/tokenStorage/token-storage.service"
     MatProgressBarModule,
     HttpClientModule,
     MatSnackBarModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatTooltipModule,
+    MatSlideToggleModule,
+    MatPaginatorModule,
   ],
   providers: [
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 4000}},

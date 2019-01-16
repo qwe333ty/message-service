@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Subject} from "rxjs";
+import {BehaviorSubject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -7,8 +7,8 @@ import {Subject} from "rxjs";
 export class ShareResourceService {
 
   // Observable string sources
-  private authorizedSource = new Subject<boolean>();
-  private userIdSource = new Subject<number>();
+  private authorizedSource = new BehaviorSubject(false);
+  private userIdSource = new BehaviorSubject(-1);
 
   // Observable string streams
   authorized$ = this.authorizedSource.asObservable();

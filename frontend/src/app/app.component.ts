@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {map, mergeMap, startWith} from 'rxjs/operators';
+import {concatMap, map, startWith} from 'rxjs/operators';
 import {Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router} from "@angular/router";
 import {ShareResourceService} from "./service/share/share-resource.service";
 import {TokenStorageService} from "./service/tokenStorage/token-storage.service";
@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
     {
       name: 'Inbox',
       symbol: 'inbox',
-      routerLink: '.'
+      routerLink: 'inbox'
     },
     {
       name: 'Starred',
@@ -96,7 +96,7 @@ export class AppComponent implements OnInit {
       map(value => this._filter(value))
     );
     this.resourceService.authorized$.pipe(
-      mergeMap(value => {
+      concatMap(value => {
         this.authenticated = true;
 
         let jwtData = this.tokenStorageService.getToken().split('.')[1];
@@ -108,6 +108,8 @@ export class AppComponent implements OnInit {
     ).subscribe(value => {
       this.userDetails = value;
       this.requestService.userId = value.id;
+      this.resourceService.nextUserId(value.id);
+      this.router.navigate(['inbox']);
     });
   }
 

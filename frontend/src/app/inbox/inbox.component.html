@@ -1,0 +1,17 @@
+<ng-template [ngIf]="messagePage">
+  <div *ngIf="showProgressBar">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+
+  <div *ngFor="let message of messagePage.content">
+    <message-template [message]="message"></message-template>
+  </div>
+
+  <mat-paginator #paginator
+                 (page)="setAnotherPage($event)"
+                 [length]="messagePage.totalElements"
+                 [pageIndex]="messagePage.number"
+                 [pageSizeOptions]="[10, 25, 50, 100]"
+                 [pageSize]="messagePage.size">
+  </mat-paginator>
+</ng-template>

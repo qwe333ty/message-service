@@ -1,0 +1,23 @@
+.message-h2 {
+  margin: 10px;
+}
+
+.message-section {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  height: 60px;
+}
+
+.message-margin {
+  margin: 0 10px;
+}
+
+.message-text-margin {
+  margin: 0 30px;
+}
+
+.data-align {
+  align-content: end;
+  align-items: end;
+}

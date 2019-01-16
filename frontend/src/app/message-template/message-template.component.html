@@ -1,0 +1,16 @@
+<mat-card>
+  <section>
+    <mat-checkbox [(ngModel)]="checkbox"
+                  class="message-margin"
+                  matTooltip="{{checkbox==true ? 'Marked' : 'Unmarked'}}"></mat-checkbox>
+    <mat-slide-toggle [(ngModel)]="message.starred"
+                      class="message-margin"
+                      matTooltip="{{message.starred==true ? 'Starred' : 'Not starred'}}"></mat-slide-toggle>
+    <mat-checkbox [(ngModel)]="message.important"
+                  class="message-margin"
+                  matTooltip="Click to mark this message as important"></mat-checkbox>
+    <span class="message-margin">{{message.subject}}</span>
+    <span class="message-text-margin">{{message.messageText.slice(0, 10)}}...</span>
+    <span class="data-align">{{message.sent | date: 'dd MMM yyy'}}</span>
+  </section>
+</mat-card>
