@@ -5,8 +5,9 @@ import {concatMap} from "rxjs/operators";
 import {ParamHelper} from "../entity/ParamHelper";
 import {Message} from "../entity/Message";
 import {Page} from "../entity/Page";
-import {Subscription} from "rxjs";
-import {MatPaginator, PageEvent} from "@angular/material";
+import {of, Subscription} from "rxjs";
+import {MatPaginator, MatSnackBar, PageEvent} from "@angular/material";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-inbox',
@@ -24,18 +25,27 @@ export class InboxComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(private requestService: RequestService,
-              private resourceService: ShareResourceService) {
+              private resourceService: ShareResourceService,
+              private router: Router,
+              private snackBar: MatSnackBar) {
   }
 
   ngOnInit() {
     this.showProgressBar = true;
-    console.log('Im here');
     this.subscriptions.push(this.resourceService.userId$.pipe(
       concatMap(value => {
-        console.log('Value: ' + value);
-        return this.requestService.getMessagePage(
-          this.requestService.userId, 0,
-          this.paginator ? this.paginator.pageIndex : 10, ParamHelper.trueFalse, ParamHelper.trueFalse);
+        if (value && this.requestService.checkTokenInStorage()) {
+          return this.requestService.getMessagePage(
+            this.requestService.userId, 0,
+            this.paginator ? this.paginator.pageIndex : 10, ParamHelper.trueFalse, ParamHelper.trueFalse);
+        } else {
+          this.showProgressBar = false;
+          this.router.navigate(['login']);
+          setTimeout(() => this.snackBar.open('Unauthorized access', "Close", {
+            duration: 3500,
+          }));
+          return of(null);
+        }
       })).subscribe(value => {
       this.messagePage = value;
       this.showProgressBar = false;

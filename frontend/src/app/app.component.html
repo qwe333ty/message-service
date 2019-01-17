@@ -36,6 +36,10 @@
     </a>
     <span class="small-padding"></span>
     <span>{{userDetails.username}}</span>
+    <span class="small-padding"></span>
+    <a (click)="logout()" color="accent" mat-fab routerLink="login">
+      <mat-icon mat-list-icon>highlight_off</mat-icon>
+    </a>
   </ng-template>
 </mat-toolbar>
 
@@ -71,7 +75,7 @@
 
   <div>
     <mat-progress-bar
-      *ngIf="loading" color="accent" mode="indeterminate">
+      *ngIf="loading" mode="indeterminate">
     </mat-progress-bar>
     <router-outlet></router-outlet>
   </div>

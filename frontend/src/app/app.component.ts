@@ -1,12 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {concatMap, map, startWith} from 'rxjs/operators';
 import {Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router} from "@angular/router";
 import {ShareResourceService} from "./service/share/share-resource.service";
 import {TokenStorageService} from "./service/tokenStorage/token-storage.service";
 import {RequestService} from "./service/request/request.service";
 import {User} from "./entity/User";
+import {MatSnackBar} from "@angular/material";
 
 @Component({
   selector: 'app-root',
@@ -66,20 +67,21 @@ export class AppComponent implements OnInit {
   filteredOptions: Observable<string[]>;
 
   constructor(private router: Router,
+              private snackBar: MatSnackBar,
               private resourceService: ShareResourceService,
               private tokenStorageService: TokenStorageService,
               private requestService: RequestService) {
     this.router.events.subscribe((event: Event) => {
       switch (true) {
         case event instanceof NavigationStart: {
-          this.loading = true;
+          setTimeout(() => this.loading = true);
           break;
         }
 
         case event instanceof NavigationEnd:
         case event instanceof NavigationCancel:
         case event instanceof NavigationError: {
-          this.loading = false;
+          setTimeout(() => this.loading = false);
           break;
         }
         default: {
@@ -90,31 +92,41 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userDetails.username = 'qwe';
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
     this.resourceService.authorized$.pipe(
       concatMap(value => {
-        this.authenticated = true;
+        this.authenticated = value;
 
-        let jwtData = this.tokenStorageService.getToken().split('.')[1];
+        if (!value) {
+          return of(null);
+        }
+        let token = this.tokenStorageService.getToken();
+        let jwtData = token.split('.')[1];
         let decodedJwtJsonData = window.atob(jwtData);
         let decodedJwtData = JSON.parse(decodedJwtJsonData);
 
         return this.requestService.findUserByUsername(decodedJwtData.sub);
       })
     ).subscribe(value => {
-      this.userDetails = value;
-      this.requestService.userId = value.id;
-      this.resourceService.nextUserId(value.id);
-      this.router.navigate(['inbox']);
+      if (value && this.requestService.checkTokenInStorage()) {
+        this.userDetails = value;
+        this.requestService.userId = value.id;
+        this.resourceService.nextUserId(value.id);
+        this.router.navigate(['inbox']);
+      }
     });
   }
 
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     return this.options.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
+  }
+
+  logout() {
+    this.authenticated = false;
+    this.tokenStorageService.signOut();
   }
 }

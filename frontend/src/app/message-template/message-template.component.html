@@ -1,12 +1,11 @@
 <mat-card>
   <section>
     <mat-checkbox [(ngModel)]="checkbox"
-                  class="message-margin"
-                  matTooltip="{{checkbox==true ? 'Marked' : 'Unmarked'}}"></mat-checkbox>
+                  class="message-margin"></mat-checkbox>
     <mat-slide-toggle [(ngModel)]="message.starred"
                       class="message-margin"
                       matTooltip="{{message.starred==true ? 'Starred' : 'Not starred'}}"></mat-slide-toggle>
-    <mat-checkbox [(ngModel)]="message.important"
+    <mat-checkbox [(indeterminate)]="message.important"
                   class="message-margin"
                   matTooltip="Click to mark this message as important"></mat-checkbox>
     <span class="message-margin">{{message.subject}}</span>

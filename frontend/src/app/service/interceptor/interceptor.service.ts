@@ -38,6 +38,7 @@ export class InterceptorService implements HttpInterceptor {
       }, (err: any) => {
         if (err instanceof HttpErrorResponse) {
           if (err.status === 401) {
+            this.router.navigate(['login']);
             this.snackBar.open('Unauthorized access', "Close", {
               duration: 3500,
             });
